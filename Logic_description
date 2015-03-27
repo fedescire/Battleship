@@ -1,0 +1,38 @@
+Funktionen:
+•	request(String url)
+o	macht die Abfrage an den Webserver
+o	gibt einen String zurück in der Form der Website
+•	XMLparse(Document doc)
+o	wandelt das XML um und gibt es zurück 
+o	rückgabewert kontrollieren 
+•	login(String pw,String user,boolean olduser) PHP Funktion: login,Registrieren
+o	wenn olduser true ist, meldet sich der user normal an
+o	wenn olduser true ist, wird ein neuer user erstellt und kontrolliert ob der Namen nicht bereits existiert
+•	Creategame(String spielname)  PHP Funktion: setSpiel,getMitspieler
+o	Der angemeldete Spieler erstellt ein Spiel und wartet bis sich jemand anmeldet
+o	Dauernder abruf bis sich ein Mitspieler am Spiel angemeldet hat
+o	Rückgabe des webservices?
+•	Polling(int x,int y) PHP Funkiton: setSpielZug, getSpielZug
+o	Der Spieler sendet seinen x und y-Wert an die Datenbank
+o	Der Spieler wartet bis der Gegner einen Zug gemacht hat
+o	Kontrolle der rückgabewerte und der speichern ins Spielfeld
+•	getGames() PHP Funktion:getSpiele
+o	umwandlung in welchen Datentyp für die Ausgabe??
+o	Holt alle freien Spiele aus der DB
+•	JoinGame(int gameid,String Spielername) PHP Funktion:joinSpiel
+o	Kontrolle des Returns ob man dem Spiel beigtetreten ist
+o	Der Spieler meldet der DB welchem Spiel er beitreten möchte
+•	startgame() PHP Funktion:setSchiffPosition/getSchiffPosition
+o	TROJ ausmachen, dass ich auch die Direktion übergebe!!!!!!
+o	 Sendet die Schiffspositionen und erhält die Positionen des Gegners
+•	playerinfo(string Nickname) PHP Funktion: getPlayerInfo
+o	Holt die Informationen über einen Bestimmten Spieler
+o	Umwandeln der Daten und wie ausgeben??
+•	Highscore() PHP Funktion: getHighscore
+o	Liest den Highscore aus der Datenbank aus und zeigt ihn an
+o	Datentyp??? LISTE??
+•	gameEnd(String SpielerID,int SpielID, int SiegerPunkte) PHP Funktion:setFinishSpiel,abbrechenSpiel 
+o	wenn das Spiel abgebrochen wird (PHP abbrechenSpiel) kann von beiden eine info an den WS gesendet werden
+o	wenn das Spiel normal beendet wird (PHP setFinishSpiel) wird das Spiel normal für beendet erklärt, darf nur der Machen, der das Spiel erstellt hat
+	kennt der host die Punkte von beiden??
+
