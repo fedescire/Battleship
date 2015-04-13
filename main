@@ -1,0 +1,44 @@
+
+public class game {
+	String Username=null;
+	 String Password=null;
+	Boolean olduser=true;
+	String spielID=null;
+	public static void main(String[] args) {
+	  new game();
+	}
+	public game(){
+		functions f=new functions();
+		
+		//Init GUI
+		//OPEN LOGINFENSTOLE
+		
+		//SET Username und Password (wird in der Funktion verschüsselt), falls neuanmeldung setze olduser auf  false;
+		//funktion login ibt true/fals zurück
+		if(f.login(Password,Username,olduser)){
+			
+			//Datentyp laut rückgabe muss ich noch bestimmen
+			f.getGames();
+			//OPEN LOBBY von funktion drober werden die spiele links angezeigt
+			
+			//CLICK CREATE GAME client geht auf warten bis ein gegner kommt
+			spielID=f.creategame("spielname");
+			
+			//CLICK JOIN GAME  spielID wird von FRAME ausgelesen
+			f.joinGame(Username, spielid);
+			
+			
+			//FRAME SETSHIPS ÖFFNEN
+			
+			//Spieler setzt seine Schiffe und übergibt sie als int array, rückgabe gegnerisches feld
+			int[][] gegnerfeld=f.startgame(spielfeld);
+			
+			//SPIELSTARTFENSTER wird geöffnet x und y sind die orte wo geklcikt wurde
+			//Spielzug gemacht/geklickt (whileschleife bis spiel zende ist???):
+			f.polling(x, y);
+			
+			
+		};
+		f.request("funktion=setSpiel&SpielerID=acd&SpielName=abc");
+	}
+}
