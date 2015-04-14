@@ -33,6 +33,8 @@ public class functions {
 	String username="test";
 	//Spieleid wird nach dem Spielstart gesetzt
 	int spieleid;
+	
+	//REQUEST PASST
 	public String request(String function){
 		try {
 			String url1="http://localhost/Projekt/battleship.php?"+function;
@@ -42,77 +44,27 @@ public class functions {
 			InputStream in = con.getInputStream();
 			encoding = encoding == null ? "UTF-8" : encoding;
 			String body = IOUtils.toString(in, encoding);
-			System.out.println(body);
 			return body;
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Fehler bei der Verbindung (funktion request");
 			return null;
 		}
 	}	
-	
-	public List xmlparse(String answ){
-		try {
-			 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			    DocumentBuilder builder = factory.newDocumentBuilder();
-			    InputSource is = new InputSource(new StringReader(answ));
-			 org.w3c.dom.Document doc= builder.parse(is);
-			
-			
-			//Wurzelement holen
-			Element element = ((Document) doc).getRootElement(); 
-			String wurzel=""+element.getName();
-			
-			//Kindelemente auslesen (eintrag ist der name des Elements):
-			List alleKinder = element.getChildren(); 
-			int länge=alleKinder.size();
-			//return alleKinder;
-			System.out.println("test");
-			//Ausgeben
-			for(int zahl=1;zahl<länge;zahl++){
-				if((((Element) alleKinder.get(zahl)).getName()).equals("eintrag")){
-					System.out.println(((Element) alleKinder.get(zahl)).getValue()); 
-				}
-			}
-			
-		} catch (SAXException e) {
-			//TODO Fehlermeldungen:
-			return null;
-		} catch (IOException e) {
-			return null;
-		} catch (ParserConfigurationException e) {
-			return null;
-		}
-		return null;
-	}
-	
-	public boolean login(String pass,String user, boolean olduser){
-		String help=null;
-		
+
+	//LOGIN PASST
+	public boolean login(String pw,String user, boolean olduser){
+		String help=null;		
 		//Password verschlüsseln/ hash berechnen
-		MessageDigest m;
-		try {
-			m = MessageDigest.getInstance("MD5");
-			m.reset();
-			m.update(pass.getBytes());
-			byte[] digest = m.digest();
-			BigInteger bigInt = new BigInteger(1,digest);
-		
-			//Passoword ist ab hier verschlüsselt
-			String pw = bigInt.toString(16);
-			if(olduser){
-				//Spieler meldet sich an mit PW und username
-				help= request("login&password="+pw+"&user="+user);
-			}else{
-				help=request("Registrieren&password="+pw+"&user="+user);
-			}
-			if(help.contains("<Status>ok</status>")){
-				return true;
-			}else{
-				return false;
-			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+		if(olduser){
+			//Spieler meldet sich an mit PW und username
+			help= request("login&password="+pw+"&user="+user);
+		}else{
+			help=request("Registrieren&password="+pw+"&user="+user);
+		}
+		if(help.equals("ok")){
+			username=user;
+			return true;
+		}else{
 			return false;
 		}
 	}
@@ -122,22 +74,17 @@ public class functions {
 			
 			//Das Spiel wird erstellt, ohne Probleme geht er ins polling und wartet auf einen Mitspieler
 			
-			String ok= request("setSpiel&id=username&spielname="+spielname);
-			if(ok.contains("<status>ok</status>")){
-				String[] h1 = ok.split(">");
-				String[] h2 = h1[(h1.length-1)].split("<");
-				spieleid=Integer.parseInt(h2[0]);
-			}
+			int spieleid= Integer.parseInt(request("setSpiel&id=username&spielname="+spielname));
 			
 			Boolean a=true;
 			while(a){
 				try {
 					TimeUnit.SECONDS.sleep(5);
-					String rück= request("SpielID="+spieleid+"&funktion=getMitspieler&SpielerID="+username);
-					if(ok.contains("<status>ok</status>")){
+					String ruck= request("SpielID="+spieleid+"&funktion=getMitspieler&SpielerID="+username);
+					/*if(ok.contains("<status>ok</status>")){
 						//TODO gegner ID auslesen
 						a=false;
-					}
+					}*/
 					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -147,7 +94,7 @@ public class functions {
 			}
 			return ""+spieleid;
 		}else{
-			return "nobody logged in";
+			return "error";
 		}
 	}
 	
@@ -162,7 +109,7 @@ public class functions {
 		//TODO return korntollieren und schauen ob man dem Spiel beigetreten ist
 	}
 	
-	public void startgame(int[][] myfeld){
+	public int[][] startgame(int[][] myfeld){
 		for(int a=0;a<10;a++){
 			for(int b=0;b<10;b++){
 				if(myfeld[a][b]!=0){
@@ -173,7 +120,9 @@ public class functions {
 					request("setSchiffPosition&x="+a+"&y="+b+"&schiffmodell="+modell+"&direct="+direct);
 				}
 			}
+			
 		}
+		return null;
 		//TODO eigenen schiffpositionen auslesen und an den WS senden (setSchiffPosition())
 		//TODO die gegnerischen schiffpositionen von WS auslesen und abspeichern (getSchiffPosition())
 	}
@@ -186,7 +135,7 @@ public class functions {
 			 try {
 				 
 				// wie sleep, in der klammer kommt die Zeit, die der Client warten muss
-				TimeUnit.SECONDS.sleep(5);
+				TimeUnit.SECONDS.sleep(2);
 				String pos= request("SpielID="+spieleid+"&funktion=getSpielZug");
 				//TODO rückgabewert kontrollieren und abspeichern
 				if(pos=="richtige Position"){
@@ -216,4 +165,3 @@ public class functions {
 	}
   
 }
-
