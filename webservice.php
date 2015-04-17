@@ -16,7 +16,7 @@
 	//setSpielZug(1);
 	//updateSpielZug(1,'Fede',5,5);
 	//getSpielZug(1);
-	//setFinishGame(4, "Marvin", 800);
+	//setFinishGame(10, "Fede", 14000);
 	//getHighscore();
 	//getMitspieler(1,'Fede');
 
@@ -138,13 +138,8 @@
 
 	function setFinishGame($SpielID, $GewinnerName, $SpielerPunkte)
 	{
-
-
-
 		$xmlquery=new dbclass();
 		$xmlquery->prepare('update tspiel set spi_gewinner_name=?, spi_gewinnerpunkte=?, spi_time_ende=null where spi_id=?;')->set($GewinnerName,$SpielerPunkte,$SpielID)->executeNonQuery();	
-		//timestamp beginn fehler
-
 	}
 
 	function getHighscore()
