@@ -1,0 +1,157 @@
+-- phpMyAdmin SQL Dump
+-- version 3.4.9
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Erstellungszeit: 17. Apr 2015 um 11:48
+-- Server Version: 5.5.20
+-- PHP-Version: 5.3.9
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Datenbank: `db_battleship`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `tschiffpos`
+--
+
+DROP TABLE IF EXISTS `tschiffpos`;
+CREATE TABLE IF NOT EXISTS `tschiffpos` (
+  `schiffpos_id` int(11) NOT NULL AUTO_INCREMENT,
+  `schiffpos_model` int(11) NOT NULL,
+  `schiffpos_x` int(11) NOT NULL,
+  `schiffpos_y` int(11) NOT NULL,
+  `schiffpos_spi_fuser_name` varchar(80) DEFAULT NULL,
+  `schiffpos_richtung` varchar(80) DEFAULT NULL,
+  `schiffpos_spiel_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`schiffpos_id`),
+  KEY `schiffpos_spi_fuser_name` (`schiffpos_spi_fuser_name`),
+  KEY `schiffpos_spiel_id` (`schiffpos_spiel_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+--
+-- Daten für Tabelle `tschiffpos`
+--
+
+INSERT DELAYED IGNORE INTO `tschiffpos` (`schiffpos_id`, `schiffpos_model`, `schiffpos_x`, `schiffpos_y`, `schiffpos_spi_fuser_name`, `schiffpos_richtung`, `schiffpos_spiel_id`) VALUES
+(1, 1, 5, 5, 'Marvin', 'h', 1),
+(2, 1, 5, 5, 'Fede', 'h', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `tspiel`
+--
+
+DROP TABLE IF EXISTS `tspiel`;
+CREATE TABLE IF NOT EXISTS `tspiel` (
+  `spi_id` int(11) NOT NULL AUTO_INCREMENT,
+  `spi_name` varchar(80) DEFAULT NULL,
+  `spi_gewinner_name` varchar(80) DEFAULT NULL,
+  `spi_gewinnerpunkte` int(11) DEFAULT NULL,
+  `spi_time_start` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `spi_time_ende` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `spi_fgast_name` varchar(80) DEFAULT NULL,
+  `spi_fhost_name` varchar(80) DEFAULT NULL,
+  PRIMARY KEY (`spi_id`),
+  UNIQUE KEY `spi_name_UNIQUE` (`spi_name`),
+  KEY `spi_fgast_name` (`spi_fgast_name`),
+  KEY `spi_fhost_name` (`spi_fhost_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=11 ;
+
+--
+-- Daten für Tabelle `tspiel`
+--
+
+INSERT DELAYED IGNORE INTO `tspiel` (`spi_id`, `spi_name`, `spi_gewinner_name`, `spi_gewinnerpunkte`, `spi_time_start`, `spi_time_ende`, `spi_fgast_name`, `spi_fhost_name`) VALUES
+(1, 'Spiel1', 'Marvin', 1200, '2015-04-07 07:47:09', '2015-04-07 07:47:09', 'Fede', 'Marvin'),
+(2, 'Spiel2', 'Fede', 1000, '2015-04-07 07:49:01', '2015-04-07 07:49:01', 'Fede', 'Marvin'),
+(3, 'Spiel3', 'Marvin', 800, '2015-04-07 07:49:22', '2015-04-07 07:49:22', 'Marvin', 'Fede'),
+(4, 'Spiel4', 'Marvin', 800, '2015-04-17 08:52:16', '2015-04-17 08:52:16', NULL, 'Fede'),
+(10, 'Spiel5', NULL, NULL, '2015-04-17 08:48:33', '0000-00-00 00:00:00', NULL, 'Marvin');
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `tspielzug`
+--
+
+DROP TABLE IF EXISTS `tspielzug`;
+CREATE TABLE IF NOT EXISTS `tspielzug` (
+  `spielzug_id` int(11) NOT NULL AUTO_INCREMENT,
+  `spielzug_x_pos` int(11) DEFAULT NULL,
+  `spielzug_y_pos` int(11) DEFAULT NULL,
+  `spielzug_use_name` varchar(80) DEFAULT NULL,
+  `spielzug_spi_fid` int(11) DEFAULT NULL,
+  PRIMARY KEY (`spielzug_id`),
+  KEY `spielzug_use_name` (`spielzug_use_name`),
+  KEY `spielzug_spi_fid` (`spielzug_spi_fid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Daten für Tabelle `tspielzug`
+--
+
+INSERT DELAYED IGNORE INTO `tspielzug` (`spielzug_id`, `spielzug_x_pos`, `spielzug_y_pos`, `spielzug_use_name`, `spielzug_spi_fid`) VALUES
+(1, 5, 5, 'Fede', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `tuser`
+--
+
+DROP TABLE IF EXISTS `tuser`;
+CREATE TABLE IF NOT EXISTS `tuser` (
+  `use_name` varchar(80) NOT NULL,
+  `use_passwort` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`use_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Daten für Tabelle `tuser`
+--
+
+INSERT DELAYED IGNORE INTO `tuser` (`use_name`, `use_passwort`) VALUES
+('Fede', 'Fedep'),
+('Marvin', 'Marvinp');
+
+--
+-- Constraints der exportierten Tabellen
+--
+
+--
+-- Constraints der Tabelle `tschiffpos`
+--
+ALTER TABLE `tschiffpos`
+  ADD CONSTRAINT `tschiffpos_ibfk_1` FOREIGN KEY (`schiffpos_spi_fuser_name`) REFERENCES `tuser` (`use_name`),
+  ADD CONSTRAINT `tschiffpos_ibfk_2` FOREIGN KEY (`schiffpos_spiel_id`) REFERENCES `tspiel` (`spi_id`);
+
+--
+-- Constraints der Tabelle `tspiel`
+--
+ALTER TABLE `tspiel`
+  ADD CONSTRAINT `tspiel_ibfk_1` FOREIGN KEY (`spi_fgast_name`) REFERENCES `tuser` (`use_name`),
+  ADD CONSTRAINT `tspiel_ibfk_2` FOREIGN KEY (`spi_fhost_name`) REFERENCES `tuser` (`use_name`);
+
+--
+-- Constraints der Tabelle `tspielzug`
+--
+ALTER TABLE `tspielzug`
+  ADD CONSTRAINT `tspielzug_ibfk_1` FOREIGN KEY (`spielzug_use_name`) REFERENCES `tuser` (`use_name`),
+  ADD CONSTRAINT `tspielzug_ibfk_2` FOREIGN KEY (`spielzug_spi_fid`) REFERENCES `tspiel` (`spi_id`);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
