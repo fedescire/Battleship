@@ -56,8 +56,9 @@
 				if (!$this->STMT->execute()){ 
 					throw new Exception($this->STMT->errorCode());
 				}
-
+				$tmp=$this->PDO->lastInsertId();
 				$this->close();
+				return $tmp;
 			}
 			catch(Exception $e){
 				echo "Fehler " . $e->getMessage();
@@ -93,5 +94,4 @@
 		}
 	}
 	
-	// $pdo->prepare("INSERT INTO tverein VALUES(?,?,?);")->set(null,$vereinsname,$stadionname)->executeNonQuery();
  ?>
