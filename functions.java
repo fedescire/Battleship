@@ -68,8 +68,8 @@ public class functions {
 		spieleid = spieleid.replace("\"", "");
 		int test=Integer.parseInt(spieleid);
 		System.out.println(test);
-		spieleid = spieleid.replace("\\r", "");
-		spieleid = spieleid.replace("\\n", "");
+		spieleid = spieleid.replace("\r", "");
+		spieleid = spieleid.replace("\n", "");
 		if(spieleid!=""){
 			Boolean a=true;
 			/*while(a){
