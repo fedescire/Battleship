@@ -1,43 +1,27 @@
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.IOUtils;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.json.*;
+
 
 
 public class functions {
-	//Verschiedenene Spielfelder
-	int[][] myfeld=new int[10][10];
-	int[][] otherfeld=new int[10][10];
-	
-	// username wird bei erfolgter Anmeldung gesetzt
-	String username="test";
-	//Spieleid wird nach dem Spielstart gesetzt
-	int spieleid;
-	
+
+	int spielID;
+	String Spielname;
+
 	//REQUEST PASST
 	public String request(String function){
 		try {
-			String url1="http://localhost/Projekt/battleship.php?"+function;
+			String url1="http://localhost:8080/battleship/battleship.php?"+function;
 			URL url = new URL(url1);
 			URLConnection con = url.openConnection();
 			String encoding = con.getContentEncoding();
@@ -52,89 +36,129 @@ public class functions {
 	}	
 
 	//LOGIN PASST
-	public boolean login(String pw,String user, boolean olduser){
-		String help=null;		
-		//Password verschlüsseln/ hash berechnen
+	public boolean login(String user,String pw, boolean olduser){
+		String help=null;	
+		//Spieler meldet sich an mit PW und username
 		if(olduser){
-			//Spieler meldet sich an mit PW und username
-			help= request("login&password="+pw+"&user="+user);
+			//Rückgabe http Seite  mit OK oder Error
+			help= request("funktion=Login&Password="+pw+"&Username="+user);
 		}else{
-			help=request("Registrieren&password="+pw+"&user="+user);
+			//Rückgabe http Seite  mit OK oder Error
+			System.out.println("test");
+			help=request("funktion=Registrieren&Password="+pw+"&Username="+user);
 		}
-		if(help.equals("ok")){
-			username=user;
+		//Rückgabe überprüfen und antwort ob ok oder nicht
+		if(help.contains("ok")){
 			return true;
 		}else{
 			return false;
 		}
 	}
 	
-	public String creategame(String spielname ){
-		if(username!=null){
+	//CREATEGAME PASST
+	public String creategame(String spielname, String username ){
+		String ruck=null;
+		//Das Spiel wird erstellt, ohne Probleme geht er ins polling und wartet auf einen Mitspieler
 			
-			//Das Spiel wird erstellt, ohne Probleme geht er ins polling und wartet auf einen Mitspieler
-			
-			int spieleid= Integer.parseInt(request("setSpiel&id=username&spielname="+spielname));
-			
+		//Rückgabe der SpielID des erstellten Spiels
+		String spieleid=""+request("funktion=setSpiel&SpielerID="+username+"&SpielName="+spielname);
+		if(spieleid.contains("Fehler 23000null")){
+			return "error";
+		}
+		spieleid = spieleid.replace("\"", "");
+		int test=Integer.parseInt(spieleid);
+		System.out.println(test);
+		spieleid = spieleid.replace("\\r", "");
+		spieleid = spieleid.replace("\\n", "");
+		if(spieleid!=""){
 			Boolean a=true;
-			while(a){
+			/*while(a){
 				try {
 					TimeUnit.SECONDS.sleep(5);
-					String ruck= request("SpielID="+spieleid+"&funktion=getMitspieler&SpielerID="+username);
-					/*if(ok.contains("<status>ok</status>")){
-						//TODO gegner ID auslesen
+					//Rückgabe der gegner ID oder bei keinem gegner NULL
+					ruck= request("SpielID="+spieleid+"&funktion=getMitspieler&Username="+username);
+					if(ruck!="null"){
 						a=false;
-					}*/
-					
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-			}
-			return ""+spieleid;
+			}*/
+			//System.out.println(spieleid);
+			//request("funktion=setSpielzug&SpielID="+spieleid);
+			return ruck+":"+spieleid;
 		}else{
 			return "error";
 		}
 	}
 	
-	public void getGames(){
-		String a=request("getSpiele");
-		//TODO umwandeln in einen anderen Datentyp und vl auslesen von XML???
-		//Liste mit allen Spielen erstellen für die Teilnahme??
+	//JOINGAME PASST
+	public boolean joinGame(int id,String spielername){
+		//Rückgabe inform von ok (Teilnhemen geklappt) oder error (Teilnahme nicht geklappt)
+		String help=request("funktion=joinSpiel&SpielID="+id+"&SpielerID="+spielername);	
+		if(help.contains("ok")){
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
-	public void joinGame(int id,String spielername){
-		String help=request("joinSpiel&spielID="+id+"&SpielerID="+spielername);
-		//TODO return korntollieren und schauen ob man dem Spiel beigetreten ist
+	
+	//GETGAMES PASST
+	public String[][] getGames(){
+		String answ=request("funktion=getSpiele");
+		JSONArray json=jsonparse(answ);
+		int lange=json.length();		
+		//Rückgabe des Wertes an GUI inform eines 2D arrays mit 3 Spalten ID,Spielname,Gegnername
+		String[][] liste=new String[lange][3];		
+		for (int i = 0; i <lange; i++)
+		{
+		    liste[i][0] = json.getJSONObject(i).getString("spielID");
+		    liste[i][1] = json.getJSONObject(i).getString("spielName");
+		    liste[i][2] = json.getJSONObject(i).getString("host");
+		}		
+		return liste;
 	}
 	
-	public int[][] startgame(int[][] myfeld){
+	//JSONPARSE PASST JUHUUUUU
+	public JSONArray jsonparse(String word){
+		word="{\"lese\":"+word+"}";
+		System.out.println(word);
+		JSONObject obj = new JSONObject(word);
+		JSONArray arr = obj.getJSONArray("lese");
+	    return arr;
+	}
+
+	//WARTE AUF GUI
+	public int[][] startgame(int[][] myfeld, int spielid){
 		for(int a=0;a<10;a++){
 			for(int b=0;b<10;b++){
 				if(myfeld[a][b]!=0){
-					//Feld hat z.B. wert 51--> 5 ist schiffsmodell und 1 die Richtung 1=Horizontal,2=wertikal
+					//Feld hat z.B. wert 51--> 5 ist schiffsmodell und 1 die Richtung 1=Horizontal,2=Vertikal
 					int modell=myfeld[a][b]/10;
 					int direct=myfeld[a][b]-(modell*10);
 					//TODO mit TROJ ausmachen dass ich auch die Direction übergebe!!!!!
-					request("setSchiffPosition&x="+a+"&y="+b+"&schiffmodell="+modell+"&direct="+direct);
+					request("setSchiffPosition&x="+a+"&y="+b+"&schiffmodell="+modell+"&direct="+direct+"&spielID="+spielid);
 				}
 			}
 			
 		}
-		return null;
-		//TODO eigenen schiffpositionen auslesen und an den WS senden (setSchiffPosition())
-		//TODO die gegnerischen schiffpositionen von WS auslesen und abspeichern (getSchiffPosition())
+		//int[][] gegnerfeld= new int[10][10];
+		//String antw=request("getSchiffPosition&SpielID="+spielid);
+		//TODO antw. parsen und auslesen für die Rückgabe
+		return null;//gegnerfeld;
 	}
 	
-	public void polling(int x,int y){
+	public void polling(int x,int y, int spieleid, String user){
 		boolean warte=true;
-		String a= request("SpielID="+spieleid+"&funktion=setSpielZug&x="+x+"&y="+y);
+		String a= request("SpielID="+spieleid+"&funktion=setSpielZug&x="+x+"&y="+y+"&SpielerID="+user);
+		System.out.println("test:"+a);
 		//TODO schauen ob die Daten angekommen sind
-		while(warte){
+		/*while(warte){
 			 try {
 				 
-				// wie sleep, in der klammer kommt die Zeit, die der Client warten muss
+				// wie sleep, in der klammer kommt die Zeit, die der Client warten muss in Sekunden
 				TimeUnit.SECONDS.sleep(2);
 				String pos= request("SpielID="+spieleid+"&funktion=getSpielZug");
 				//TODO rückgabewert kontrollieren und abspeichern
@@ -146,7 +170,7 @@ public class functions {
 				System.out.println("Error in der Funktion polling");
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 
 	public void gameend(){
