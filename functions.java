@@ -1,12 +1,8 @@
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.json.*;
@@ -16,6 +12,16 @@ import org.json.*;
 public class functions {
 
 	int spielID;
+	String gegnerId;
+	String Username;
+	public String getUsername() {
+		return Username;
+	}
+
+	public void setUsername(String username) {
+		Username = username;
+	}
+
 	String Spielname;
 
 	//REQUEST PASST
@@ -55,7 +61,15 @@ public class functions {
 		}
 	}
 	
-	//CREATEGAME PASST
+	//REPLACE PASST
+	public String replace(String wert){
+		wert= wert.replace("\"", "");
+		wert = wert.replace("\r", "");
+		wert = wert.replace("\n", "");
+		return wert;
+	}
+	
+	//CREATEGAME PASST AUSER RÜCKGABE DER DATENBANK
 	public String creategame(String spielname, String username ){
 		String ruck=null;
 		//Das Spiel wird erstellt, ohne Probleme geht er ins polling und wartet auf einen Mitspieler
@@ -65,28 +79,28 @@ public class functions {
 		if(spieleid.contains("Fehler 23000null")){
 			return "error";
 		}
-		spieleid = spieleid.replace("\"", "");
-		int test=Integer.parseInt(spieleid);
-		System.out.println(test);
-		spieleid = spieleid.replace("\r", "");
-		spieleid = spieleid.replace("\n", "");
+		spieleid = replace(spieleid);
 		if(spieleid!=""){
 			Boolean a=true;
-			/*while(a){
+			while(a){
 				try {
-					TimeUnit.SECONDS.sleep(5);
 					//Rückgabe der gegner ID oder bei keinem gegner NULL
+					
+					//TODO Rückgabe testen!!
 					ruck= request("SpielID="+spieleid+"&funktion=getMitspieler&Username="+username);
+					ruck=replace(ruck);
 					if(ruck!="null"){
 						a=false;
+					}else{
+						TimeUnit.SECONDS.sleep(5);
 					}
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}*/
-			//System.out.println(spieleid);
-			//request("funktion=setSpielzug&SpielID="+spieleid);
+			}
+			//Spielzug erstellen!!
+			request("funktion=setSpielzug&SpielID="+spieleid);
+			gegnerId=ruck;
 			return ruck+":"+spieleid;
 		}else{
 			return "error";
@@ -124,38 +138,46 @@ public class functions {
 	//JSONPARSE PASST JUHUUUUU
 	public JSONArray jsonparse(String word){
 		word="{\"lese\":"+word+"}";
-		System.out.println(word);
 		JSONObject obj = new JSONObject(word);
 		JSONArray arr = obj.getJSONArray("lese");
 	    return arr;
 	}
 
-	//WARTE AUF GUI
-	public int[][] startgame(int[][] myfeld, int spielid){
+	//STARTGAME passt
+	public int[][] startgame(int[][] myfeld, int spielid, String username){
 		for(int a=0;a<10;a++){
 			for(int b=0;b<10;b++){
 				if(myfeld[a][b]!=0){
 					//Feld hat z.B. wert 51--> 5 ist schiffsmodell und 1 die Richtung 1=Horizontal,2=Vertikal
 					int modell=myfeld[a][b]/10;
 					int direct=myfeld[a][b]-(modell*10);
-					//TODO mit TROJ ausmachen dass ich auch die Direction übergebe!!!!!
-					request("setSchiffPosition&x="+a+"&y="+b+"&schiffmodell="+modell+"&direct="+direct+"&spielID="+spielid);
+					request("funktion=setSchiffPosition&x="+a+"&y="+b+"&Schiffmodell="+modell+"&direction="+direct+"&SpielID="+spielid+"&SpielerID="+username);
 				}
 			}
-			
 		}
-		//int[][] gegnerfeld= new int[10][10];
-		//String antw=request("getSchiffPosition&SpielID="+spielid);
+		String antw=request("funktion=getSchiffPosition&SpielID="+spielid+"&GegnerID="+gegnerId);
+		JSONArray json=jsonparse(antw);
+		int[][] ab=new int[10][10];
+		for(int a=0;a<10;a++){
+			for(int b=0;b<10;b++){
+				ab[a][b]=0;
+			}
+		}
+		int lange=json.length();
+		for(int za=0;za<lange;za++){
+			int x=Integer.parseInt(json.getJSONObject(za).getString("x_kord"));
+			int y=Integer.parseInt(json.getJSONObject(za).getString("y_kord"));
+			ab[x][y]=Integer.parseInt(json.getJSONObject(za).getString("schiffmodell"));		
+		}
 		//TODO antw. parsen und auslesen für die Rückgabe
-		return null;//gegnerfeld;
+		return ab;//gegnerfeld;
 	}
 	
+	//POLLING passt
 	public void polling(int x,int y, int spieleid, String user){
 		boolean warte=true;
-		String a= request("SpielID="+spieleid+"&funktion=setSpielZug&x="+x+"&y="+y+"&SpielerID="+user);
-		System.out.println("test:"+a);
-		//TODO schauen ob die Daten angekommen sind
-		/*while(warte){
+		request("funktion=setSpielZug&SpielID="+spieleid+"&x="+x+"&y="+y+"&SpielerID="+user);
+		while(warte){
 			 try {
 				 
 				// wie sleep, in der klammer kommt die Zeit, die der Client warten muss in Sekunden
@@ -170,7 +192,7 @@ public class functions {
 				System.out.println("Error in der Funktion polling");
 				e.printStackTrace();
 			}
-		}*/
+		}
 	}
 
 	public void gameend(){
