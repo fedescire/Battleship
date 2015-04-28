@@ -204,10 +204,20 @@ public class functions {
 		String a=request("getPlayerInfo&SpielerID="+SpielerID);
 		//TODO auslesen und aufbereiten für GUI
 	}
-
-	public void highscore(){
-		String a=request("getHighscore");
-		//Highscore auslesen
+	
+	
+	//HIGHSCORE PASST
+	public String[][] highscore(){
+		String a=request("funktion=getHighscore");
+		JSONArray arr=jsonparse(a);
+		int lan=arr.length();
+		String[][] ruck=new String[lan][2];
+		for (int i = 0; i <lan; i++)
+		{
+		    ruck[i][0] =arr.getJSONObject(i).getString("username");
+		    ruck[i][1] =arr.getJSONObject(i).getString("highscore");
+		}		
+		return ruck;
 	}
   
 }
