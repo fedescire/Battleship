@@ -205,7 +205,6 @@ public class functions {
 		//TODO auslesen und aufbereiten für GUI
 	}
 	
-	
 	//HIGHSCORE PASST
 	public String[][] highscore(){
 		String a=request("funktion=getHighscore");
