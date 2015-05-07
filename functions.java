@@ -51,16 +51,16 @@ public class Functions {
 	//REQUEST PASST
 	public String request(String function){
 		try {
-			//String url1="http://10.58.130.72:8080/battleship/battleship.php?"+function;
-                        String url1="http://"+hostToUse+"/battleship/battleship.php?"+function;
+			String url1="http://fedesawesomeserver.mynetgear.com";//?"+function;
+                        //String url1="http://"+hostToUse+"/battleship/battleship.php?"+function;
 			URL url = new URL(url1);
-			//Öffnen der Verbindung
 			URLConnection con = url.openConnection();
+                        con.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 			String encoding = con.getContentEncoding();
 			InputStream in = con.getInputStream();
 			encoding = encoding == null ? "UTF-8" : encoding;
-			//Umwandlung der Atnwort in einen String und rückgabe
-			return IOUtils.toString(in, encoding);
+			String body = IOUtils.toString(in, encoding);
+			return body;
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
